@@ -1,0 +1,67 @@
+version: '2'
+services:
+    nginx:
+        image: nginx:alpine
+        container_name: voxus-nginx
+        restart: always
+        ports:
+            - "8000:80"
+        volumes:
+            - .:/var/www/html/
+            - ./.devops/nginx/default.conf:/etc/nginx/conf.d/default.conf
+        tty: true
+        links:
+            - php
+        networks:
+            - voxus
+    php:
+        container_name: voxus-php
+        image: php:7.4-fpm-alpine
+        user: "${uid}:${gid}"
+        build: ./.devops/fpm
+        environment:
+            APP_NAME: voxus
+            APP_ENV: local
+            APP_KEY: base64:rZkvdPk8OVsPQm//v1wiTnoomHPyqBwEFtj2AsuwHHM=
+            APP_DEBUG: "true"
+            APP_URL: http://voxus.local
+            PSYSH_CONFIG: /var/www/html/.devops/psysh/config.php
+            DB_CONNECTION: mysql
+            DB_HOST: mysql
+            DB_PORT: 3306
+            DB_DATABASE: voxus
+            DB_USERNAME: voxus
+            DB_PASSWORD: 12345
+
+        volumes:
+            - .:/var/www/html/
+            - ./.devops/fpm/php.ini:/usr/local/etc/php/php.ini
+            - ./.devops/psysh:/var/www/html/.devops/psysh
+        links:
+            - mysql
+        networks:
+            - voxus
+
+    mysql:
+        image: mysql:5.7
+        container_name: voxus-mysql
+        ports:
+            - "3306"
+        restart: always
+        volumes:
+            - voxus-mysql:/var/lib/mysql
+        environment:
+            MYSQL_USER: voxus
+            MYSQL_PASSWORD: 12345
+            MYSQL_DATABASE: voxus
+            MYSQL_ROOT_PASSWORD: root
+        networks:
+            - voxus
+
+networks:
+    voxus:
+        driver: bridge
+
+volumes:
+    voxus-mysql:
+        driver: local
