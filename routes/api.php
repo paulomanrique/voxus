@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserLocationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('/user_location/{id}', [UserLocationController::class, 'show'])->name('user_location.show');
+Route::post('/user_location', [UserLocationController::class, 'store'])->name('user_location.store');
