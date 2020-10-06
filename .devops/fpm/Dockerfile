@@ -26,7 +26,9 @@ RUN apk add --no-cache freetype libwebp-dev libpng libjpeg-turbo freetype-dev li
 
 # install xdebug
 RUN pecl install -f xdebug
+RUN pecl install -f redis
 RUN docker-php-ext-enable xdebug
+RUN docker-php-ext-enable redis
 RUN echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN echo "display_startup_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN echo "display_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
@@ -37,7 +39,7 @@ RUN echo "xdebug.remote_host=host.docker.internal" >> /usr/local/etc/php/conf.d/
 
 COPY ./php.ini /usr/local/etc/php/php.ini
 
-RUN echo '*  *  *  *  * /usr/local/bin/php  /var/www/html/artisan schedule:run >> /dev/null 2>&1' > /etc/crontabs/root && mkdir /etc/supervisor.d 
+RUN echo '*  *  *  *  * /usr/local/bin/php  /var/www/html/artisan schedule:run >> /dev/null 2>&1' > /etc/crontabs/root && mkdir /etc/supervisor.d
 ADD master.ini /etc/supervisor.d/
 
 RUN deluser www-data
